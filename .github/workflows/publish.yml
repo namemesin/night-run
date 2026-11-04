@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write # to save each published version number as a tag
   pages: write
   id-token: write
 
@@ -23,29 +23,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # the version number comes from the commit history
-      - name: Unpack the game
+          fetch-depth: 0 # the version number comes from the tags and history
+      - name: Build the game
         run: |
-          zip="night-run-app.zip"
-          [ -f "$zip" ] || zip="$(ls -t *.zip | head -n 1)"
-          echo "Publishing $zip"
-          mkdir site
-          unzip -q -o "$zip" -d site
-          # a zip that holds a single folder: use what's inside it
-          if [ ! -f site/index.html ] && [ "$(ls site | wc -l)" = "1" ]; then mv site/*/* site/; fi
+          python3 build.py
+          cp -R night-run-app site
           test -f site/index.html
           sed -i 's#https://night-run-drop-in.netlify.app/#https://namemesin.github.io/night-run/#g' site/index.html
       - name: Set the version number
+        id: version
         run: |
-          # The first number is in VERSION_MAJOR. The second counts the zips uploaded since that file last changed.
+          # The first number is in VERSION_MAJOR. The second goes up once per push that changes the game.
+          # Each published version is saved as a tag, like v2.1, which is how the next publish knows where to continue.
           major="$(tr -d '[:space:]' < VERSION_MAJOR)"
-          minor="$(git rev-list --count "$(git rev-list -1 HEAD -- VERSION_MAJOR)..HEAD" -- '*.zip')"
-          version="$major.$minor"
+          latest="$(git tag --list "v$major.*" --sort=-v:refname | head -n 1)"
+          if [ -z "$latest" ]; then
+            version="$major.0"; new=true
+          elif git diff --quiet "$latest" HEAD -- src night-run-app; then
+            version="${latest#v}"; new=false
+          else
+            version="$major.$(( ${latest##*.} + 1 ))"; new=true
+          fi
           sed -i -E "s/(APP_VERSION = ')[^']*'/\1$version'/" site/index.html
-          sed -i -E "s/(const CACHE = 'night-run-)[^']*'/\1$version'/; s/(offline support, version ).*/\1$version./" site/sw.js
+          sed -i -E "s/(const CACHE = 'night-run-)[^']*'/\1$version'/" site/sw.js
           printf '{"version": "%s"}\n' "$version" > site/version.json
           grep -q "APP_VERSION = '$version'" site/index.html
           grep -q "const CACHE = 'night-run-$version'" site/sw.js
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "new=$new" >> "$GITHUB_OUTPUT"
           echo "Publishing version $version"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v5
@@ -53,3 +58,10 @@ jobs:
           path: site
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Save the version number
+        if: steps.version.outputs.new == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git tag "v$VERSION"
+          git push origin "v$VERSION"

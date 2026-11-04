@@ -1,7 +1,7 @@
   // ---------- error log ----------
   // Problems are sent to the error_logs table in Supabase with a code, a plain description and details.
   // If the device is offline, they wait in a small queue and go out the next time the game loads or reconnects.
-  const APP_VERSION = '2026.11.04-012733';
+  const APP_VERSION = 'dev'; // the publish step replaces this with the real version number
   const ERRORS = {
     E100: 'The game hit an unexpected error',
     E101: 'A background task failed without being handled',
