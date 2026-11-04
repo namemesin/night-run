@@ -1,5 +1,3 @@
-# Publishes Night Run to GitHub Pages every time a new game zip is uploaded to this repository.
-# Upload night-run-app.zip (replacing the old one) and the site updates by itself in about a minute.
 name: Publish Night Run
 
 on:
