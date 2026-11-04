@@ -1,0 +1,73 @@
+<!doctype html>
+<!-- Built from the src folder by build.py. Edit the files in src, not this one. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0a1020">
+<meta name="description" content="Snowboard down a midnight mountain, land tricks, grind rails and race your friends on the daily course.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Night Run">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Night Run">
+<meta property="og:title" content="Night Run">
+<meta property="og:description" content="Snowboard down a midnight mountain, land tricks, grind rails and race your friends on the daily course.">
+<meta property="og:url" content="https://night-run-drop-in.netlify.app/">
+<meta property="og:image" content="https://night-run-drop-in.netlify.app/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Night Run: a snowboarder carving past pine trees and a glowing lantern under the northern lights">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Night Run">
+<meta name="twitter:description" content="Snowboard down a midnight mountain, land tricks, grind rails and race your friends on the daily course.">
+<meta name="twitter:image" content="https://night-run-drop-in.netlify.app/og-image.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Night Run</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=DM+Mono:wght@400;500&display=swap">
+<style>
+{{styles}}
+</style>
+</head>
+<body>
+
+<div class="hud">
+  <h1>Night Run</h1>
+  <div class="stats">
+    <div><span>Score</span><b id="score">0</b></div>
+    <div><span>Best</span><b id="best">0</b></div>
+    <div class="toggles">
+      <button class="mute" id="musicBtn" type="button" aria-pressed="true">Music</button>
+      <button class="mute" id="sfxBtn" type="button" aria-pressed="true">Sound</button>
+      <button class="mute" id="setBtn" type="button" aria-label="Settings">Settings</button>
+    </div>
+  </div>
+</div>
+<div class="stage" id="stage">
+  <canvas id="c"></canvas>
+  <button class="pause" id="pauseBtn" type="button" aria-label="Pause" hidden>II</button>
+  <button class="boost" id="boost" type="button" hidden>Flare</button>
+  <div class="overlay" id="overlay"><div class="panel" id="panel"></div></div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+{{game}}
+})();
+</script>
+
+<script>
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(e => { if (window.nrLogError) window.nrLogError('E500', e); }));
+}
+</script>
+</body>
+</html>

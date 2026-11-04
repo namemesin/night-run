@@ -1,0 +1,16 @@
+{
+  "name": "Night Run",
+  "short_name": "Night Run",
+  "description": "Snowboard down a midnight mountain, land tricks, grind rails and race your friends on the daily course.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a1020",
+  "theme_color": "#0a1020",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

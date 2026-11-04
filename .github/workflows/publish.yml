@@ -22,6 +22,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the version number comes from the commit history
       - name: Unpack the game
         run: |
           zip="night-run-app.zip"
@@ -33,7 +35,18 @@ jobs:
           if [ ! -f site/index.html ] && [ "$(ls site | wc -l)" = "1" ]; then mv site/*/* site/; fi
           test -f site/index.html
           sed -i 's#https://night-run-drop-in.netlify.app/#https://namemesin.github.io/night-run/#g' site/index.html
-          grep -o "APP_VERSION = '[^']*'" site/index.html
+      - name: Set the version number
+        run: |
+          # The first number is in VERSION_MAJOR. The second counts the zips uploaded since that file last changed.
+          major="$(tr -d '[:space:]' < VERSION_MAJOR)"
+          minor="$(git rev-list --count "$(git rev-list -1 HEAD -- VERSION_MAJOR)..HEAD" -- '*.zip')"
+          version="$major.$minor"
+          sed -i -E "s/(APP_VERSION = ')[^']*'/\1$version'/" site/index.html
+          sed -i -E "s/(const CACHE = 'night-run-)[^']*'/\1$version'/; s/(offline support, version ).*/\1$version./" site/sw.js
+          printf '{"version": "%s"}\n' "$version" > site/version.json
+          grep -q "APP_VERSION = '$version'" site/index.html
+          grep -q "const CACHE = 'night-run-$version'" site/sw.js
+          echo "Publishing version $version"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v5
         with:
