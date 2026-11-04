@@ -1,0 +1,44 @@
+# Publishes Night Run to GitHub Pages every time a new game zip is uploaded to this repository.
+# Upload night-run-app.zip (replacing the old one) and the site updates by itself in about a minute.
+name: Publish Night Run
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unpack the game
+        run: |
+          zip="night-run-app.zip"
+          [ -f "$zip" ] || zip="$(ls -t *.zip | head -n 1)"
+          echo "Publishing $zip"
+          mkdir site
+          unzip -q -o "$zip" -d site
+          # a zip that holds a single folder: use what's inside it
+          if [ ! -f site/index.html ] && [ "$(ls site | wc -l)" = "1" ]; then mv site/*/* site/; fi
+          test -f site/index.html
+          sed -i 's#https://night-run-drop-in.netlify.app/#https://namemesin.github.io/night-run/#g' site/index.html
+          grep -o "APP_VERSION = '[^']*'" site/index.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
